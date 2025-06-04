@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vulnerability Scanner</title>
+  <style>
+    /* Reset and base */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f2f5;
+      margin: 0;
+      padding: 40px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+    .container {
+      background: white;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      max-width: 600px;
+      width: 100%;
+    }
+    h1 {
+      margin-top: 0;
+      font-weight: 700;
+      color: #333;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #4a90e2;
+      box-shadow: 0 0 8px rgba(74,144,226,0.3);
+    }
+    button {
+      margin-top: 16px;
+      width: 100%;
+      padding: 14px;
+      background: #4a90e2;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background: #357ABD;
+    }
+    .output {
+      margin-top: 30px;
+      font-size: 15px;
+      color: #222;
+    }
+    .loading {
+      color: #4a90e2;
+      font-weight: 600;
+    }
+    .error {
+      color: #d9534f;
+      font-weight: 600;
+    }
+    /* Scan result styling */
+    .result-section {
+      margin-top: 20px;
+    }
+    .result-section h3 {
+      margin-bottom: 8px;
+      color: #4a90e2;
+    }
+    .result-section ul {
+      padding-left: 20px;
+      margin-top: 0;
+    }
+    .result-section ul li {
+      margin-bottom: 6px;
+    }
+    .port-list {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .port-badge {
+      background: #e3f2fd;
+      color: #1565c0;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 14px;
+      user-select: none;
+    }
+    .scan-time {
+      margin-top: 14px;
+      font-style: italic;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔍 Vulnerability Scanner</h1>
+    <input
+      type="text"
+      id="hostInput"
+      placeholder="Enter host (e.g. scanme.nmap.org)"
+      autocomplete="off"
+    />
+    <button id="scanBtn">Start Scan</button>
+
+    <div id="output" class="output">
+      Enter a hostname and click <strong>Start Scan With Aman</strong> to begin.
+    </div>
+  </div>
+
+  <script>
+    const scanBtn = document.getElementById("scanBtn");
+    const hostInput = document.getElementById("hostInput");
+    const output = document.getElementById("output");
+
+    scanBtn.addEventListener("click", async () => {
+      const host = hostInput.value.trim();
+      if (!host) {
+        output.innerHTML = '<div class="error">Please enter a valid host.</div>';
+        return;
+      }
+      output.innerHTML = '<div class="loading">Scanning... Please wait.</div>';
+
+      try {
+        const res = await fetch(`http://127.0.0.1:8000/scan?host=${encodeURIComponent(host)}`);
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(errorText || "Failed to scan");
+        }
+        const data = await res.json();
+        displayResult(data);
+      } catch (error) {
+        output.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+      }
+    });
+
+    function displayResult(data) {
+      let html = `<div class="result-section">
+        <h3>Scan Result for <em>${data.host}</em> (IP: ${data.ip})</h3>`;
+
+      if (data.open_ports.length === 0) {
+        html += `<p>No open ports detected.</p>`;
+      } else {
+        html += `<div>
+          <strong>Open Ports:</strong>
+          <div class="port-list">`;
+        data.open_ports.forEach(port => {
+          html += `<span class="port-badge">${port}</span>`;
+        });
+        html += `</div></div>`;
+
+        html += `<div style="margin-top: 15px;">
+          <strong>Vulnerabilities:</strong>`;
+
+        for (const [port, vulns] of Object.entries(data.vulnerabilities)) {
+          html += `<div style="margin-top:10px;">
+            <em>Port ${port}</em>
+            <ul>`;
+          vulns.forEach(v => {
+            html += `<li>${v}</li>`;
+          });
+          html += `</ul>
+          </div>`;
+        }
+        html += `</div>`;
+      }
+
+      html += `<div class="scan-time">Scan performed at: ${new Date(data.scan_time).toLocaleString()}</div>`;
+      html += `</div>`;
+
+      output.innerHTML = html;
+    }
+  </script>
+</body>
+</html>
