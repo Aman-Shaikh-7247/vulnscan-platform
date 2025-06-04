@@ -1,0 +1,13 @@
+Copyright © 2025 Aman Naushad Shaikh
+
+All rights reserved.
+
+This software and associated documentation files (the "Software") are the exclusive property of Aman Naushad Shaikh.
+
+Permission is hereby NOT granted to any person or entity to use, copy, modify, merge, publish, distribute, sublicense, or sell copies of the Software, or to permit any of the foregoing actions, in whole or in part.
+
+You may only view or reference the code for personal, non-commercial, and educational purposes. Any commercial, academic, or derivative use is strictly prohibited without prior written permission from Aman Naushad Shaikh.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED.
+
+For permissions, please contact: [mr.shaikhaman7247@gmail.com]
